@@ -1,0 +1,58 @@
+name: Build & commit dist
+
+# Rebuilds the bundles from src/ on every push to main and commits the
+# regenerated dist/ back to the repo.
+on:
+  push:
+    branches: [main]
+    # Don't react to commits that only touch dist/ (e.g. this job's own
+    # commit) — avoids a rebuild loop. Note: pushes made with the default
+    # GITHUB_TOKEN already don't re-trigger workflows, so this is belt-and-braces.
+    paths-ignore:
+      - 'dist/**'
+  workflow_dispatch:
+
+# Allow the job to push the rebuilt dist/ back to the branch.
+permissions:
+  contents: write
+
+# Avoid overlapping runs racing to push.
+concurrency:
+  group: build-dist-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          ref: ${{ github.ref_name }}
+
+      - name: Set up Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build bundles
+        run: npm run build
+
+      - name: Verify (equivalence + unit tests)
+        run: npm test
+
+      - name: Commit dist if changed
+        run: |
+          if [ -z "$(git status --porcelain dist)" ]; then
+            echo "dist is unchanged — nothing to commit."
+            exit 0
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add dist
+          git commit -m "chore: rebuild dist [skip ci]"
+          git push
