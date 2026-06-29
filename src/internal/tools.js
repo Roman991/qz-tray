@@ -69,10 +69,16 @@ _qz.tools = {
         if (self.lna && self.lna.detectLna) {
             return self.lna;
         }
-        // Use `require` if available so that bundlers can detect the dependency
+        // Use `require` if available so that bundlers can detect the dependency.
+        // For browser builds the package's "browser" field maps `lna` to an empty
+        // module (avoiding esbuild's throwing dynamic-require shim), so validate
+        // that the result actually exposes the LNA API before using it.
         if (typeof require === 'function') {
             try {
-                return require('lna');
+                var lna = require('lna');
+                if (lna && lna.detectLna) {
+                    return lna;
+                }
             } catch (e) {
                 _qz.log.warn('Unable to load LNA library', e);
             }

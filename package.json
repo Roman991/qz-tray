@@ -21,7 +21,8 @@
         "./src/**/*.js"
     ],
     "browser": {
-        "path": false
+        "path": false,
+        "lna": false
     },
     "scripts": {
         "build": "node scripts/build.mjs",
