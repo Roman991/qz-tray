@@ -1,5 +1,6 @@
 import { _qz } from './internal/core.js';
 import { qz } from './api/registry.js';
+import { normalizePrinter } from './internal/helpers.js';
 
 /** Object to handle configured printer options. */
 export function Config(printer, opts) {
@@ -15,10 +16,7 @@ export function Config(printer, opts) {
      *  @param {string} [newPrinter.port] Port used by &lt;printer.host>.
      */
     this.setPrinter = function (newPrinter) {
-        if (typeof newPrinter === 'string') {
-            newPrinter = { name: newPrinter };
-        }
-        this.printer = newPrinter;
+        this.printer = normalizePrinter(newPrinter);
     };
 
     /**
@@ -35,11 +33,13 @@ export function Config(printer, opts) {
      * @see qz.configs.setDefaults
      */
     this.reconfigure = function (newOpts) {
-        for (var key in newOpts) {
+        // newOpts may be undefined (e.g. qz.configs.create(printer) with no opts);
+        // the original `for…in` was a no-op on undefined, so guard to match.
+        Object.keys(newOpts || {}).forEach((key) => {
             if (newOpts[key] !== undefined) {
                 this._dirtyOpts[key] = true;
             }
-        }
+        });
 
         _qz.tools.extend(this.config, newOpts);
     };

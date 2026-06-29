@@ -1,13 +1,24 @@
 // Bundles the modular src/ back into a single IIFE/UMD file, behavior-identical
 // to the original hand-written qz-tray.js.
 import { build } from 'esbuild';
+import fs from 'node:fs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 const ROOT = path.resolve(path.dirname(fileURLToPath(import.meta.url)), '..');
 
+// Single source of truth for the version: package.json. Guard that the runtime
+// constant in core.js (which becomes qz.version) hasn't drifted from it.
+const pkg = JSON.parse(fs.readFileSync(path.join(ROOT, 'package.json'), 'utf8'));
+const coreSrc = fs.readFileSync(path.join(ROOT, 'src/internal/core.js'), 'utf8');
+const coreVersion = (coreSrc.match(/VERSION:\s*'([^']+)'/) || [])[1];
+if (coreVersion !== pkg.version) {
+    console.error(`Version mismatch: package.json=${pkg.version} but core.js VERSION=${coreVersion}`);
+    process.exit(1);
+}
+
 const banner = `/**
- * @version 2.2.6
+ * @version ${pkg.version}
  * @overview QZ Tray Connector
  * @license LGPL-2.1-only
  *

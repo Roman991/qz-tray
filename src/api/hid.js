@@ -1,5 +1,6 @@
 import { _qz } from '../internal/core.js';
 import { qz } from './registry.js';
+import { normalizeDeviceInfo, normalizeData } from '../internal/helpers.js';
 
 /**
  * Calls related to interaction with HID USB devices<br/>
@@ -81,9 +82,8 @@ qz.hid = {
      * @memberof qz.hid
      */
     claimDevice: function (deviceInfo) {
-        if (typeof deviceInfo !== 'object') {
-            deviceInfo = { vendorId: arguments[0], productId: arguments[1] };
-        } //backwards compatibility
+        //backwards compatibility
+        deviceInfo = normalizeDeviceInfo(arguments, ['vendorId', 'productId']);
 
         return _qz.websocket.dataPromise('hid.claimDevice', deviceInfo);
     },
@@ -102,9 +102,8 @@ qz.hid = {
      * @memberOf qz.hid
      */
     isClaimed: function (deviceInfo) {
-        if (typeof deviceInfo !== 'object') {
-            deviceInfo = { vendorId: arguments[0], productId: arguments[1] };
-        } //backwards compatibility
+        //backwards compatibility
+        deviceInfo = normalizeDeviceInfo(arguments, ['vendorId', 'productId']);
 
         return _qz.websocket.dataPromise('hid.isClaimed', deviceInfo);
     },
@@ -129,22 +128,10 @@ qz.hid = {
      */
     sendData: function (deviceInfo) {
         //backwards compatibility
-        if (typeof deviceInfo !== 'object') {
-            deviceInfo = {
-                vendorId: arguments[0],
-                productId: arguments[1],
-                data: arguments[2],
-                endpoint: arguments[3],
-            };
-        }
+        deviceInfo = normalizeDeviceInfo(arguments, ['vendorId', 'productId', 'data', 'endpoint']);
 
         if (_qz.tools.versionCompare(2, 1, 0, 12) >= 0) {
-            if (typeof deviceInfo.data !== 'object') {
-                deviceInfo.data = {
-                    data: deviceInfo.data,
-                    type: 'PLAIN',
-                };
-            }
+            deviceInfo.data = normalizeData(deviceInfo.data);
 
             if (deviceInfo.data.type && deviceInfo.data.type.toUpperCase() == 'FILE') {
                 deviceInfo.data.data = _qz.tools.absolute(deviceInfo.data.data);
@@ -185,13 +172,7 @@ qz.hid = {
      */
     readData: function (deviceInfo) {
         //backwards compatibility
-        if (typeof deviceInfo !== 'object') {
-            deviceInfo = {
-                vendorId: arguments[0],
-                productId: arguments[1],
-                responseSize: arguments[2],
-            };
-        }
+        deviceInfo = normalizeDeviceInfo(arguments, ['vendorId', 'productId', 'responseSize']);
 
         return _qz.websocket.dataPromise('hid.readData', deviceInfo);
     },
@@ -253,14 +234,7 @@ qz.hid = {
      */
     openStream: function (deviceInfo) {
         //backwards compatibility
-        if (typeof deviceInfo !== 'object') {
-            deviceInfo = {
-                vendorId: arguments[0],
-                productId: arguments[1],
-                responseSize: arguments[2],
-                interval: arguments[3],
-            };
-        }
+        deviceInfo = normalizeDeviceInfo(arguments, ['vendorId', 'productId', 'responseSize', 'interval']);
 
         return _qz.websocket.dataPromise('hid.openStream', deviceInfo);
     },
@@ -279,9 +253,8 @@ qz.hid = {
      * @memberof qz.hid
      */
     closeStream: function (deviceInfo) {
-        if (typeof deviceInfo !== 'object') {
-            deviceInfo = { vendorId: arguments[0], productId: arguments[1] };
-        } //backwards compatibility
+        //backwards compatibility
+        deviceInfo = normalizeDeviceInfo(arguments, ['vendorId', 'productId']);
 
         return _qz.websocket.dataPromise('hid.closeStream', deviceInfo);
     },
@@ -300,9 +273,8 @@ qz.hid = {
      * @memberof qz.hid
      */
     releaseDevice: function (deviceInfo) {
-        if (typeof deviceInfo !== 'object') {
-            deviceInfo = { vendorId: arguments[0], productId: arguments[1] };
-        } //backwards compatibility
+        //backwards compatibility
+        deviceInfo = normalizeDeviceInfo(arguments, ['vendorId', 'productId']);
 
         return _qz.websocket.dataPromise('hid.releaseDevice', deviceInfo);
     },

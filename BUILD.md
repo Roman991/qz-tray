@@ -12,17 +12,31 @@ src/
   polyfills.js          Array.isArray / Number.isInteger / Array.from / padStart
   internal/
     core.js             _qz: singleton privato condiviso (TITLE/VERSION/DEBUG)
+    helpers.js          funzioni PURE riusabili (dispatch, normalizeData,
+                        ensureArray, normalizeDeviceInfo, normalizePrinter)
+    index.js            barrel: importa tutti i moduli internal
     log.js streams.js websocket.js printing.js serial.js socket.js
     usb.js hid.js printers.js file.js security.js tools.js
     compatible.js sha.js     ← ognuno fa `_qz.<ns> = { ... }`
-  config.js             classe Config (export)
+  config.js             classe Config (export); usa normalizePrinter
   api/
     registry.js         qz: singleton pubblico condiviso (`export const qz = {}`)
+    index.js            barrel: importa tutti i moduli api
     websocket.js printers.js configs.js print.js serial.js socket.js
     usb.js hid.js file.js networking.js security.js api.js
                         ← ognuno fa `qz.<ns> = { ... }`
-  index.js              importa tutto, setta qz.version, `export default qz`
+  index.js              entry: polyfills → internal → config → api,
+                        setta qz.version, `export default qz`
 ```
+
+### Funzioni pure (`internal/helpers.js`)
+
+Logica di normalizzazione argomenti che era copia-incollata nei moduli (dispatch
+dei callback di stream, conversione `arguments`→deviceInfo in usb/hid, wrapping
+`{data,type:'PLAIN'}`, `Array.isArray ? x : [x]`, printer string→`{name}`) è
+estratta in funzioni pure, senza dipendenze da `_qz`/`qz`, testate in isolamento
+(`scripts/units.mjs`). Le **firme/arità pubbliche restano invariate** (la verifica
+controlla `fn/<length>`).
 
 ### Come funziona lo stato condiviso
 
@@ -36,26 +50,37 @@ irrilevante per la correttezza.
 ## Comandi
 
 ```bash
-npm install        # installa esbuild
-npm run build      # dist/qz-tray.js  (IIFE/UMD, minificato)
+npm install        # installa esbuild + prettier
+npm run build      # dist/qz-tray.js + dist/qz-tray.mjs (IIFE/UMD + ESM, minificati)
 npm run build:dev  # idem, non minificato + sourcemap inline
-npm test           # verifica equivalenza con l'originale qz-tray.js
+npm test           # verify.mjs (equivalenza) + units.mjs (helper puri)
+npm run test:unit  # solo i test unitari dei helper
+npm run format     # prettier --write
 ```
 
-L'output è IIFE con `globalName: 'qz'` (espone `window.qz`/`self.qz`); il footer
+L'output IIFE usa `globalName: 'qz'` (espone `window.qz`/`self.qz`); il footer
 aggiunge CommonJS (`module.exports`) e AMD (`define`), riproducendo la coda UMD
-dell'originale.
+dell'originale. La build legge la `version` da `package.json` per il banner e
+**fallisce** se `core.js` è andato fuori sincrono (guardia anti-drift).
 
 ## Verifica di equivalenza
 
-`scripts/verify.mjs` carica originale e bundle in un sandbox `vm` e confronta la
-superficie API (namespace, nomi metodi, arità) — 77 funzioni, version 2.2.6 —
-oltre a uno smoke test funzionale (creazione `Config`, `reconfigure`, percorsi
-che lanciano eccezioni). Deve stampare `OK: API surface identical`.
+`scripts/verify.mjs` carica originale e bundle in un sandbox `vm` e confronta:
 
-## Rigenerare i moduli dall'originale
+1. la superficie API (namespace, nomi metodi, **arità** — 77 funzioni, v2.2.6);
+2. uno smoke test funzionale (`Config`, `reconfigure`, percorsi che lanciano);
+3. un test differenziale che esercita i percorsi di normalizzazione argomenti su
+   molti metodi pubblici (usb/hid/serial/socket/file/printers/configs),
+   confrontando l'esito (`THROW:…` / `PROMISE`) tra originale e bundle.
 
-`scripts/split.mjs` ha affettato `qz-tray.js` in moduli copiando i corpi
-byte-per-byte (riscrive solo il wrapper `chiave: { … }` → `oggetto.chiave = { … }`).
-Serve solo per la migrazione iniziale: una volta che si lavora su `src/`, il file
-`qz-tray.js` alla radice è di sola lettura/riferimento e può essere rimosso.
+`scripts/units.mjs` testa in isolamento le funzioni pure di `internal/helpers.js`.
+Entrambi devono stampare `OK`.
+
+## Nota sulla migrazione
+
+`scripts/split.mjs` (storico) ha affettato l'originale `qz-tray.js` in moduli. Ora
+che `src/` è stato rifattorizzato a mano (helper estratti, dedup), **diverge** di
+proposito dall'originale: lo split non va più rieseguito. `src/` è la fonte di
+verità; `qz-tray.js` alla radice resta come oracolo richiesto da `verify.mjs`
+(rimuovendolo, `npm test` fallisce: usa `npm run test:unit` da solo, oppure
+reintroduci nel verify il fallback standalone).

@@ -1,5 +1,6 @@
 import { _qz } from '../internal/core.js';
 import { qz } from './registry.js';
+import { normalizeData } from '../internal/helpers.js';
 
 /**
  * Calls related to interaction with serial ports.
@@ -89,12 +90,7 @@ qz.serial = {
      */
     sendData: function (port, data, options) {
         if (_qz.tools.versionCompare(2, 1, 0, 12) >= 0) {
-            if (typeof data !== 'object') {
-                data = {
-                    data: data,
-                    type: 'PLAIN',
-                };
-            }
+            data = normalizeData(data);
 
             if (data.type && data.type.toUpperCase() == 'FILE') {
                 data.data = _qz.tools.absolute(data.data);

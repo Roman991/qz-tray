@@ -1,5 +1,6 @@
 import { _qz } from '../internal/core.js';
 import { qz } from './registry.js';
+import { normalizeData } from '../internal/helpers.js';
 
 /**
  * Calls related to interaction with communication sockets.
@@ -51,12 +52,7 @@ qz.socket = {
      * @memberof qz.socket
      */
     sendData: function (host, port, data) {
-        if (typeof data !== 'object') {
-            data = {
-                data: data,
-                type: 'PLAIN',
-            };
-        }
+        data = normalizeData(data);
 
         var params = {
             host: host,

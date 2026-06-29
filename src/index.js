@@ -12,40 +12,16 @@
 
 import './polyfills.js';
 
-// Internal singleton + namespaces (attach to `_qz`)
+// Internal singleton + all `_qz.*` namespaces.
 import { _qz } from './internal/core.js';
-import './internal/log.js';
-import './internal/streams.js';
-import './internal/websocket.js';
-import './internal/printing.js';
-import './internal/serial.js';
-import './internal/socket.js';
-import './internal/usb.js';
-import './internal/hid.js';
-import './internal/printers.js';
-import './internal/file.js';
-import './internal/security.js';
-import './internal/tools.js';
-import './internal/compatible.js';
-import './internal/sha.js';
+import './internal/index.js';
 
-// Config class (depends on _qz + public qz)
+// Config class (depends on _qz + public qz).
 import './config.js';
 
-// Public singleton + namespaces (attach to `qz`)
+// Public singleton + all `qz.*` namespaces.
 import { qz } from './api/registry.js';
-import './api/websocket.js';
-import './api/printers.js';
-import './api/configs.js';
-import './api/print.js';
-import './api/serial.js';
-import './api/socket.js';
-import './api/usb.js';
-import './api/hid.js';
-import './api/file.js';
-import './api/networking.js';
-import './api/security.js';
-import './api/api.js';
+import './api/index.js';
 
 /**
  * Version of this JavaScript library

@@ -1,5 +1,6 @@
 import { _qz } from '../internal/core.js';
 import { qz } from './registry.js';
+import { ensureArray } from '../internal/helpers.js';
 
 /**
  * Calls related to getting printer information from the connection.
@@ -61,9 +62,7 @@ qz.printers = {
      * @memberof qz.printers
      */
     startListening: function (printers, options) {
-        if (!Array.isArray(printers)) {
-            printers = [printers];
-        }
+        printers = ensureArray(printers);
         var params = {
             printerNames: printers,
         };

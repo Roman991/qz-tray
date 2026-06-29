@@ -1,5 +1,6 @@
 import { _qz } from './core.js';
 import { qz } from '../api/registry.js';
+import { dispatch } from './helpers.js';
 
 _qz.websocket = {
     /** The actual websocket object managing the connection. */
@@ -436,25 +437,13 @@ _qz.websocket = {
     errorCallbacks: [],
     /** Calls all functions registered to listen for errors. */
     callError: function (evt) {
-        if (Array.isArray(_qz.websocket.errorCallbacks)) {
-            for (var i = 0; i < _qz.websocket.errorCallbacks.length; i++) {
-                _qz.websocket.errorCallbacks[i](evt);
-            }
-        } else {
-            _qz.websocket.errorCallbacks(evt);
-        }
+        dispatch(_qz.websocket.errorCallbacks, evt);
     },
 
     /** List of function to call on closing from the websocket. */
     closedCallbacks: [],
     /** Calls all functions registered to listen for closing. */
     callClose: function (evt) {
-        if (Array.isArray(_qz.websocket.closedCallbacks)) {
-            for (var i = 0; i < _qz.websocket.closedCallbacks.length; i++) {
-                _qz.websocket.closedCallbacks[i](evt);
-            }
-        } else {
-            _qz.websocket.closedCallbacks(evt);
-        }
+        dispatch(_qz.websocket.closedCallbacks, evt);
     },
 };

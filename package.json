@@ -28,7 +28,8 @@
         "build:dev": "node scripts/build.mjs --dev",
         "format": "prettier --write .",
         "format:check": "prettier --check .",
-        "test": "node scripts/verify.mjs"
+        "test:unit": "node scripts/units.mjs",
+        "test": "node scripts/verify.mjs && node scripts/units.mjs"
     },
     "devDependencies": {
         "esbuild": "^0.25.0",

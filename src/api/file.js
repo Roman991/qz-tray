@@ -1,5 +1,6 @@
 import { _qz } from '../internal/core.js';
 import { qz } from './registry.js';
+import { ensureArray } from '../internal/helpers.js';
 
 /**
  * Calls related to interactions with the filesystem
@@ -101,11 +102,11 @@ qz.file = {
      * @memberof qz.file
      */
     startListening: function (path, params) {
-        if (params && typeof params.include !== 'undefined' && !Array.isArray(params.include)) {
-            params.include = [params.include];
+        if (params && typeof params.include !== 'undefined') {
+            params.include = ensureArray(params.include);
         }
-        if (params && typeof params.exclude !== 'undefined' && !Array.isArray(params.exclude)) {
-            params.exclude = [params.exclude];
+        if (params && typeof params.exclude !== 'undefined') {
+            params.exclude = ensureArray(params.exclude);
         }
         var param = _qz.tools.extend({ path: path }, params);
         return _qz.websocket.dataPromise('file.startListening', param);

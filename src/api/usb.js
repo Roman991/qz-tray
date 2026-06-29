@@ -1,5 +1,6 @@
 import { _qz } from '../internal/core.js';
 import { qz } from './registry.js';
+import { normalizeDeviceInfo, normalizeData } from '../internal/helpers.js';
 
 /**
  * Calls related to interaction with USB devices.
@@ -28,9 +29,8 @@ qz.usb = {
      * @memberof qz.usb
      */
     listInterfaces: function (deviceInfo) {
-        if (typeof deviceInfo !== 'object') {
-            deviceInfo = { vendorId: arguments[0], productId: arguments[1] };
-        } //backwards compatibility
+        //backwards compatibility
+        deviceInfo = normalizeDeviceInfo(arguments, ['vendorId', 'productId']);
 
         return _qz.websocket.dataPromise('usb.listInterfaces', deviceInfo);
     },
@@ -46,13 +46,7 @@ qz.usb = {
      */
     listEndpoints: function (deviceInfo) {
         //backwards compatibility
-        if (typeof deviceInfo !== 'object') {
-            deviceInfo = {
-                vendorId: arguments[0],
-                productId: arguments[1],
-                interface: arguments[2],
-            };
-        }
+        deviceInfo = normalizeDeviceInfo(arguments, ['vendorId', 'productId', 'interface']);
 
         return _qz.websocket.dataPromise('usb.listEndpoints', deviceInfo);
     },
@@ -84,13 +78,7 @@ qz.usb = {
      */
     claimDevice: function (deviceInfo) {
         //backwards compatibility
-        if (typeof deviceInfo !== 'object') {
-            deviceInfo = {
-                vendorId: arguments[0],
-                productId: arguments[1],
-                interface: arguments[2],
-            };
-        }
+        deviceInfo = normalizeDeviceInfo(arguments, ['vendorId', 'productId', 'interface']);
 
         return _qz.websocket.dataPromise('usb.claimDevice', deviceInfo);
     },
@@ -107,9 +95,8 @@ qz.usb = {
      * @memberOf qz.usb
      */
     isClaimed: function (deviceInfo) {
-        if (typeof deviceInfo !== 'object') {
-            deviceInfo = { vendorId: arguments[0], productId: arguments[1] };
-        } //backwards compatibility
+        //backwards compatibility
+        deviceInfo = normalizeDeviceInfo(arguments, ['vendorId', 'productId']);
 
         return _qz.websocket.dataPromise('usb.isClaimed', deviceInfo);
     },
@@ -129,22 +116,10 @@ qz.usb = {
      */
     sendData: function (deviceInfo) {
         //backwards compatibility
-        if (typeof deviceInfo !== 'object') {
-            deviceInfo = {
-                vendorId: arguments[0],
-                productId: arguments[1],
-                endpoint: arguments[2],
-                data: arguments[3],
-            };
-        }
+        deviceInfo = normalizeDeviceInfo(arguments, ['vendorId', 'productId', 'endpoint', 'data']);
 
         if (_qz.tools.versionCompare(2, 1, 0, 12) >= 0) {
-            if (typeof deviceInfo.data !== 'object') {
-                deviceInfo.data = {
-                    data: deviceInfo.data,
-                    type: 'PLAIN',
-                };
-            }
+            deviceInfo.data = normalizeData(deviceInfo.data);
 
             if (deviceInfo.data.type && deviceInfo.data.type.toUpperCase() == 'FILE') {
                 deviceInfo.data.data = _qz.tools.absolute(deviceInfo.data.data);
@@ -168,14 +143,7 @@ qz.usb = {
      */
     readData: function (deviceInfo) {
         //backwards compatibility
-        if (typeof deviceInfo !== 'object') {
-            deviceInfo = {
-                vendorId: arguments[0],
-                productId: arguments[1],
-                endpoint: arguments[2],
-                responseSize: arguments[3],
-            };
-        }
+        deviceInfo = normalizeDeviceInfo(arguments, ['vendorId', 'productId', 'endpoint', 'responseSize']);
 
         return _qz.websocket.dataPromise('usb.readData', deviceInfo);
     },
@@ -197,15 +165,7 @@ qz.usb = {
      */
     openStream: function (deviceInfo) {
         //backwards compatibility
-        if (typeof deviceInfo !== 'object') {
-            deviceInfo = {
-                vendorId: arguments[0],
-                productId: arguments[1],
-                endpoint: arguments[2],
-                responseSize: arguments[3],
-                interval: arguments[4],
-            };
-        }
+        deviceInfo = normalizeDeviceInfo(arguments, ['vendorId', 'productId', 'endpoint', 'responseSize', 'interval']);
 
         return _qz.websocket.dataPromise('usb.openStream', deviceInfo);
     },
@@ -223,13 +183,7 @@ qz.usb = {
      */
     closeStream: function (deviceInfo) {
         //backwards compatibility
-        if (typeof deviceInfo !== 'object') {
-            deviceInfo = {
-                vendorId: arguments[0],
-                productId: arguments[1],
-                endpoint: arguments[2],
-            };
-        }
+        deviceInfo = normalizeDeviceInfo(arguments, ['vendorId', 'productId', 'endpoint']);
 
         return _qz.websocket.dataPromise('usb.closeStream', deviceInfo);
     },
@@ -245,9 +199,8 @@ qz.usb = {
      * @memberof qz.usb
      */
     releaseDevice: function (deviceInfo) {
-        if (typeof deviceInfo !== 'object') {
-            deviceInfo = { vendorId: arguments[0], productId: arguments[1] };
-        } //backwards compatibility
+        //backwards compatibility
+        deviceInfo = normalizeDeviceInfo(arguments, ['vendorId', 'productId']);
 
         return _qz.websocket.dataPromise('usb.releaseDevice', deviceInfo);
     },
