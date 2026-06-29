@@ -1,0 +1,11 @@
+# Generated bundles
+dist/
+
+# Dependencies
+node_modules/
+
+# Original hand-written connector kept only as migration reference
+qz-tray.js
+
+# Lockfiles
+package-lock.json
