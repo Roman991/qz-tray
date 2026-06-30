@@ -2,24 +2,23 @@
     "name": "qz-tray",
     "version": "2.2.6",
     "description": "Connects a web client to the QZ Tray software.  Enables printing and device communication from javascript. ",
-    "main": "dist/qz-tray.js",
-    "module": "dist/qz-tray.mjs",
+    "main": "dist/qz-next.js",
+    "module": "dist/qz-next.mjs",
+    "types": "dist/types/index.d.ts",
     "exports": {
         ".": {
-            "import": "./dist/qz-tray.mjs",
-            "require": "./dist/qz-tray.js",
-            "default": "./dist/qz-tray.js"
+            "types": "./dist/types/index.d.ts",
+            "import": "./dist/qz-next.mjs",
+            "require": "./dist/qz-next.js",
+            "default": "./dist/qz-next.js"
         },
         "./package.json": "./package.json"
     },
     "files": [
         "dist",
-        "src"
+        "src-next"
     ],
-    "sideEffects": [
-        "./src/index.js",
-        "./src/**/*.js"
-    ],
+    "sideEffects": false,
     "browser": {
         "path": false,
         "lna": false
@@ -27,6 +26,11 @@
     "scripts": {
         "build": "node scripts/build.mjs",
         "build:dev": "node scripts/build.mjs --dev",
+        "build:next": "node scripts/build-next.mjs",
+        "build:next:dev": "node scripts/build-next.mjs --dev",
+        "build:all": "npm run build && npm run build:next && npm run types",
+        "typecheck": "tsc --noEmit",
+        "types": "tsc",
         "format": "prettier --write .",
         "format:check": "prettier --check .",
         "test:unit": "node scripts/units.mjs",
@@ -34,7 +38,8 @@
     },
     "devDependencies": {
         "esbuild": "^0.25.0",
-        "prettier": "^3.9.1"
+        "prettier": "^3.9.1",
+        "typescript": "^5.9.3"
     },
     "repository": {
         "type": "git",

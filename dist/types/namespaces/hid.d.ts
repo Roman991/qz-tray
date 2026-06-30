@@ -1,0 +1,20 @@
+import type { Context } from '../core/context.js';
+import type { Transport } from '../core/transport.js';
+import type { Callbacks } from '../internal/streams.js';
+type DeviceArg = Record<string, unknown> | string;
+export declare function createHid(ctx: Context, transport: Transport): {
+    listDevices: () => Promise<object[]>;
+    startListening: () => Promise<void>;
+    stopListening: () => Promise<void>;
+    setHidCallbacks: (calls: Callbacks) => void;
+    claimDevice: (deviceInfo: DeviceArg, ...rest: unknown[]) => Promise<void>;
+    isClaimed: (deviceInfo: DeviceArg, ...rest: unknown[]) => Promise<boolean>;
+    sendData: (deviceInfo: DeviceArg, ...rest: unknown[]) => Promise<void>;
+    readData: (deviceInfo: DeviceArg, ...rest: unknown[]) => Promise<string[]>;
+    sendFeatureReport: (deviceInfo: Record<string, unknown>) => Promise<void>;
+    getFeatureReport: (deviceInfo: Record<string, unknown>) => Promise<string[]>;
+    openStream: (deviceInfo: DeviceArg, ...rest: unknown[]) => Promise<void>;
+    closeStream: (deviceInfo: DeviceArg, ...rest: unknown[]) => Promise<void>;
+    releaseDevice: (deviceInfo: DeviceArg, ...rest: unknown[]) => Promise<void>;
+};
+export {};
